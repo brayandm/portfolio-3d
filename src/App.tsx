@@ -50,7 +50,7 @@ function App() {
     }, [positions, rng]);
     return (
         <Canvas
-            camera={{ position: [0, 0, 500], far: 100000000 }}
+            camera={{ position: [50, -400, 280], far: 100000000 }}
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
             <GradientBackground
