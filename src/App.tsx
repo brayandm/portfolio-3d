@@ -4,6 +4,8 @@ import { OrbitControls, OrthographicCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 import { BackgroundStars } from "./components/BackgroundStars/BackgroundStars";
+import { GradientBackground } from "./components/GradientBackground/GradientBackground";
+import { NebulaLayer } from "./components/NebulaLayer/NebulaLayer";
 
 function App() {
     const DOTS_COUNT = 20;
@@ -46,6 +48,8 @@ function App() {
         <Canvas
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
+            <GradientBackground innerRadius={350} colorTop="#1a1446" colorBottom="#020611" />
+            <NebulaLayer count={5} radius={45} opacity={0.2} />
             <BackgroundStars
                 count={1500}
                 radius={20}
@@ -89,3 +93,4 @@ function App() {
 }
 
 export default App;
+
