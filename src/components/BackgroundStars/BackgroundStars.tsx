@@ -5,31 +5,31 @@ import { Random } from "../../utils/random";
 const STAR_TWINKLE_PROB = 0.1;
 
 type BackgroundStarsProps = {
-    count?: number;
+    countInner?: number;
+    countOuter?: number;
     radius?: number;
     depth?: number;
     size?: number;
     innerHoleRadius?: number;
     shellThickness?: number;
-    shellRatio?: number;
 };
 
 export function BackgroundStars({
-    count = 1000,
+    countInner = 150,
+    countOuter = 850,
     radius = 60,
     depth = 40,
     size = 1,
     innerHoleRadius = 10,
     shellThickness = 0.6,
-    shellRatio = 0.15,
 }: BackgroundStarsProps) {
     const rng = useMemo(() => new Random(0), []);
 
     const positions = useMemo(() => {
-        const arr = new Float32Array(count * 3);
-        const shellCount = Math.floor(count * shellRatio);
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount * 3);
         const shellR = innerHoleRadius;
-        for (let i = 0; i < shellCount; i++) {
+        for (let i = 0; i < countInner; i++) {
             const u = rng.random();
             const v = rng.random();
             const theta = 2 * Math.PI * u;
@@ -45,8 +45,9 @@ export function BackgroundStars({
         const arms = 4;
         const armSeparation = (2 * Math.PI) / arms;
         const spin = 2.5;
-        let w = shellCount;
-        while (w < count) {
+        let w = countInner;
+        const target = totalCount;
+        while (w < target) {
             const r01 = Math.pow(rng.random(), 0.6);
             const r = (radius * 0.7 + depth * 1.1) * r01 + radius * 0.4;
             const arm = Math.floor(rng.random() * arms);
@@ -66,11 +67,12 @@ export function BackgroundStars({
             w++;
         }
         return arr;
-    }, [count, radius, depth, innerHoleRadius, shellRatio, shellThickness, rng]);
+    }, [countInner, countOuter, radius, depth, innerHoleRadius, shellThickness, rng]);
 
     const colors = useMemo(() => {
-        const arr = new Float32Array(count * 3);
-        for (let i = 0; i < count; i++) {
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount * 3);
+        for (let i = 0; i < totalCount; i++) {
             const r = rng.random();
             let c0: THREE.Color;
             let c1: THREE.Color;
@@ -106,35 +108,39 @@ export function BackgroundStars({
             arr[i * 3 + 2] = c.b;
         }
         return arr;
-    }, [count, rng]);
+    }, [countInner, countOuter, rng]);
 
     const sizes = useMemo(() => {
-        const arr = new Float32Array(count);
-        for (let i = 0; i < count; i++) {
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount);
+        for (let i = 0; i < totalCount; i++) {
             const r = Math.pow(rng.random(), 3);
             arr[i] = size * (2 + r * 3);
         }
         return arr;
-    }, [count, size, rng]);
+    }, [countInner, countOuter, size, rng]);
 
     const twinkleFlags = useMemo(() => {
-        const arr = new Float32Array(count);
-        for (let i = 0; i < count; i++)
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount);
+        for (let i = 0; i < totalCount; i++)
             arr[i] = rng.random() < STAR_TWINKLE_PROB ? 1 : 0;
         return arr;
-    }, [count, rng]);
+    }, [countInner, countOuter, rng]);
 
     const twinklePhases = useMemo(() => {
-        const arr = new Float32Array(count);
-        for (let i = 0; i < count; i++) arr[i] = rng.random() * Math.PI * 2;
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount);
+        for (let i = 0; i < totalCount; i++) arr[i] = rng.random() * Math.PI * 2;
         return arr;
-    }, [count, rng]);
+    }, [countInner, countOuter, rng]);
 
     const twinkleSpeeds = useMemo(() => {
-        const arr = new Float32Array(count);
-        for (let i = 0; i < count; i++) arr[i] = 0 + rng.random() * 1.2;
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount);
+        for (let i = 0; i < totalCount; i++) arr[i] = 0 + rng.random() * 1.2;
         return arr;
-    }, [count, rng]);
+    }, [countInner, countOuter, rng]);
 
     const materialRef = useRef<THREE.ShaderMaterial>(null!);
 
@@ -222,3 +228,4 @@ export function BackgroundStars({
         </group>
     );
 }
+

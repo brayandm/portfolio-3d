@@ -65,13 +65,13 @@ function App() {
                 scaleRange={[20, 100]}
             />
             <BackgroundStars
-                count={1500}
-                radius={300}
+                countInner={400}
+                countOuter={750}
+                radius={95}
                 depth={10}
                 size={2}
-                innerHoleRadius={80}
+                innerHoleRadius={30}
                 shellThickness={10}
-                shellRatio={0.5}
             />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
