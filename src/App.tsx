@@ -54,7 +54,12 @@ function App() {
                 colorTop="#1a1446"
                 colorBottom="#020611"
             />
-            <NebulaLayer count={5} radius={45} opacity={0.2} />
+            <NebulaLayer
+                count={10}
+                radius={45}
+                opacity={0.03}
+                scaleRange={[20, 40]}
+            />
             <BackgroundStars
                 count={1500}
                 radius={20}
