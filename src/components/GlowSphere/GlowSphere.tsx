@@ -19,6 +19,12 @@ type GlowSphereProps = {
     orbitSpeed?: number;
     orbitDirection?: 1 | -1;
     orbitAxis?: [number, number, number];
+    atmosphere?: boolean;
+    atmosphereColor?: THREE.ColorRepresentation;
+    atmosphereIntensity?: number;
+    atmospherePower?: number;
+    atmosphereOpacity?: number;
+    atmosphereOffset?: number;
 };
 
 export function GlowSphere({
@@ -36,6 +42,12 @@ export function GlowSphere({
     orbitSpeed = 0,
     orbitDirection = 1,
     orbitAxis = [0, 1, 0],
+    atmosphere = false,
+    atmosphereColor,
+    atmosphereIntensity = 0.7,
+    atmospherePower = 2.2,
+    atmosphereOpacity = 0.35,
+    atmosphereOffset = 0.05,
 }: GlowSphereProps) {
     const rimMatRef = useRef<THREE.ShaderMaterial>(null!);
     const groupRef = useRef<THREE.Group>(null!);
@@ -94,6 +106,22 @@ export function GlowSphere({
         `,
         [],
     );
+    const fragmentShaderAtmos = useMemo(
+        () => `
+        uniform vec3 uColor;
+        uniform float uPower;
+        uniform float uIntensity;
+        uniform float uOpacity;
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+            float fresnel = pow(1.0 - max(dot(normalize(vNormal), normalize(vViewDir)), 0.0), uPower);
+            vec3 glow = uColor * fresnel * uIntensity;
+            gl_FragColor = vec4(glow, clamp(fresnel * uOpacity, 0.0, 1.0));
+        }
+        `,
+        [],
+    );
     const uniforms = useMemo(
         () => ({
             uColor: { value: baseColor.clone() },
@@ -101,6 +129,19 @@ export function GlowSphere({
             uIntensity: { value: 1.5 },
         }),
         [baseColor],
+    );
+    const atmosphereColorFinal = useMemo(
+        () => new THREE.Color(atmosphereColor || color),
+        [atmosphereColor, color],
+    );
+    const uniformsAtmos = useMemo(
+        () => ({
+            uColor: { value: atmosphereColorFinal.clone() },
+            uPower: { value: atmospherePower },
+            uIntensity: { value: atmosphereIntensity },
+            uOpacity: { value: atmosphereOpacity },
+        }),
+        [atmosphereColorFinal, atmospherePower, atmosphereIntensity, atmosphereOpacity],
     );
 
     useFrame((_, delta) => {
@@ -154,6 +195,23 @@ export function GlowSphere({
                     ]}
                 />
             </mesh>
+            {atmosphere && (
+                <mesh>
+                    <sphereGeometry args={[0.76 + atmosphereOffset, 64, 64]} />
+                    <shaderMaterial
+                        args={[
+                            {
+                                uniforms: uniformsAtmos,
+                                vertexShader,
+                                fragmentShader: fragmentShaderAtmos,
+                                transparent: true,
+                                blending: THREE.AdditiveBlending,
+                                depthWrite: false,
+                            },
+                        ]}
+                    />
+                </mesh>
+            )}
             <InstancedDots
                 positions={positions}
                 color={baseColor}
