@@ -44,28 +44,29 @@ export function BackgroundStars({
             let whiteMixMin = 0.05;
             let whiteMixMax = 0.35;
             if (r < 0.05) {
-                c0 = new THREE.Color(0.60, 0.75, 1.00);
-                c1 = new THREE.Color(0.80, 0.90, 1.00);
-                whiteMixMax = 0.20;
-            } else if (r < 0.20) {
-                c0 = new THREE.Color(1.00, 0.80, 0.55);
-                c1 = new THREE.Color(1.00, 0.85, 0.65);
+                c0 = new THREE.Color(0.6, 0.75, 1.0);
+                c1 = new THREE.Color(0.8, 0.9, 1.0);
+                whiteMixMax = 0.2;
+            } else if (r < 0.2) {
+                c0 = new THREE.Color(1.0, 0.8, 0.55);
+                c1 = new THREE.Color(1.0, 0.85, 0.65);
             } else if (r < 0.45) {
-                c0 = new THREE.Color(1.00, 0.92, 0.60);
-                c1 = new THREE.Color(1.00, 0.97, 0.80);
+                c0 = new THREE.Color(1.0, 0.92, 0.6);
+                c1 = new THREE.Color(1.0, 0.97, 0.8);
             } else if (r < 0.95) {
-                c0 = new THREE.Color(0.95, 0.97, 1.00);
-                c1 = new THREE.Color(1.00, 1.00, 1.00);
-                whiteMixMin = 0.20;
-                whiteMixMax = 0.60;
+                c0 = new THREE.Color(0.95, 0.97, 1.0);
+                c1 = new THREE.Color(1.0, 1.0, 1.0);
+                whiteMixMin = 0.2;
+                whiteMixMax = 0.6;
             } else {
-                c0 = new THREE.Color(1.00, 0.55, 0.55);
-                c1 = new THREE.Color(1.00, 0.65, 0.65);
+                c0 = new THREE.Color(1.0, 0.55, 0.55);
+                c1 = new THREE.Color(1.0, 0.65, 0.65);
                 whiteMixMax = 0.25;
             }
             const t = Math.random();
             const base = new THREE.Color().lerpColors(c0, c1, t);
-            const whiteMix = whiteMixMin + Math.random() * (whiteMixMax - whiteMixMin);
+            const whiteMix =
+                whiteMixMin + Math.random() * (whiteMixMax - whiteMixMin);
             const c = base.lerp(new THREE.Color(1, 1, 1), whiteMix);
             arr[i * 3 + 0] = c.r;
             arr[i * 3 + 1] = c.g;
