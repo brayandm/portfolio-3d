@@ -65,12 +65,17 @@ function App() {
             />
             <BackgroundStars
                 count={1500}
-                radius={20}
+                radius={15}
                 depth={10}
                 size={2}
-                rotationSpeed={0.005}
+                rotationSpeed={0.01}
             />
-            <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={100} />
+            <OrthographicCamera
+                makeDefault
+                position={[0, -10, 0]}
+                rotation={[Math.PI / 2, 0, 0]}
+                zoom={100}
+            />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
             <GlowSphere
