@@ -1,20 +1,44 @@
 import { Html } from "@react-three/drei";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type StartOverlayProps = {
     onStart: () => void;
+    delayMs?: number;
+    fadeMs?: number;
 };
 
-export function StartOverlay({ onStart }: StartOverlayProps) {
-	const [fading, setFading] = useState(false);
+export function StartOverlay({
+    onStart,
+    delayMs = 3000,
+    fadeMs = 2000,
+}: StartOverlayProps) {
+    const [fading, setFading] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [appeared, setAppeared] = useState(false);
 
-	const handleClick = useCallback(() => {
-		if (!fading) setFading(true);
-	}, [fading]);
+    useEffect(() => {
+        const t = setTimeout(() => setVisible(true), Math.max(0, delayMs));
+        return () => clearTimeout(t);
+    }, [delayMs]);
 
-	const handleTransitionEnd = useCallback(() => {
-		if (fading) onStart();
-	}, [fading, onStart]);
+    useEffect(() => {
+        if (visible) {
+            const id = requestAnimationFrame(() => setAppeared(true));
+            return () => cancelAnimationFrame(id);
+        } else {
+            setAppeared(false);
+        }
+    }, [visible]);
+
+    const handleClick = useCallback(() => {
+        if (!fading) setFading(true);
+    }, [fading]);
+
+    const handleTransitionEnd = useCallback(() => {
+        if (fading) onStart();
+    }, [fading, onStart]);
+
+    if (!visible) return null;
 
     return (
         <Html prepend>
@@ -35,8 +59,8 @@ export function StartOverlay({ onStart }: StartOverlayProps) {
                         "0 0 6px #00fff2, 0 0 12px #00fff2, 0 0 24px #00fff2, 0 0 48px #00a1ff, 0 0 72px #0066ff",
                     cursor: "pointer",
                     userSelect: "none",
-                    opacity: fading ? 0 : 1,
-                    transition: "opacity 600ms ease",
+                    opacity: fading ? 0 : appeared ? 1 : 0,
+                    transition: `opacity ${fadeMs}ms ease`,
                 }}
             >
                 START
