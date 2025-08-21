@@ -13,13 +13,15 @@ import { CameraAnimator } from "./components/CameraAnimator/CameraAnimator";
 function App() {
     const [started, setStarted] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
-    const handleStart = () => {
-        setStarted(true);
+    const startMusic = () => {
         const el = audioRef.current;
         if (el) {
             el.currentTime = 0;
             el.play().catch(() => {});
         }
+    };
+    const handleStart = () => {
+        setStarted(true);
     };
     const DOTS_COUNT = 20;
     const EDGE_COUNT = 10;
@@ -67,7 +69,12 @@ function App() {
                 camera={{ position: [50, -400, 280], far: 100000000 }}
                 style={{ background: "black", width: "100vw", height: "100vh" }}
             >
-                {!started && <StartOverlay onStart={handleStart} />}
+                {!started && (
+                    <StartOverlay
+                        onStart={handleStart}
+                        startMusic={startMusic}
+                    />
+                )}
                 <CameraAnimator
                     active={started}
                     duration={3}

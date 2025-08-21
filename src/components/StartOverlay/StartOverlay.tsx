@@ -3,14 +3,20 @@ import { useCallback, useEffect, useState } from "react";
 
 type StartOverlayProps = {
     onStart: () => void;
+    startMusic: () => void;
     delayMs?: number;
     fadeMs?: number;
+    fadeInMs?: number;
+    fadeOutMs?: number;
 };
 
 export function StartOverlay({
     onStart,
-    delayMs = 3000,
-    fadeMs = 2000,
+    startMusic,
+    delayMs = 2000,
+    fadeMs = 3000,
+    fadeInMs = 3000,
+    fadeOutMs = 5000,
 }: StartOverlayProps) {
     const [fading, setFading] = useState(false);
     const [visible, setVisible] = useState(false);
@@ -41,13 +47,16 @@ export function StartOverlay({
 
     const handleClick = useCallback(() => {
         if (!fading) setFading(true);
-    }, [fading]);
+        startMusic();
+    }, [fading, startMusic]);
 
     const handleTransitionEnd = useCallback(() => {
         if (fading) onStart();
     }, [fading, onStart]);
 
     if (!visible) return null;
+
+    const durationMs = fading ? fadeOutMs ?? fadeMs : fadeInMs ?? fadeMs;
 
     return (
         <Html prepend>
@@ -74,7 +83,7 @@ export function StartOverlay({
                             "0 0 6px #00fff2, 0 0 12px #00fff2, 0 0 24px #00fff2, 0 0 48px #00a1ff, 0 0 72px #0066ff",
                         userSelect: "none",
                         opacity: fading ? 0 : appeared ? 1 : 0,
-                        transition: `opacity ${fadeMs}ms ease`,
+                        transition: `opacity ${durationMs}ms ease`,
                     }}
                 >
                     START
