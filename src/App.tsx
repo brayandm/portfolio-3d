@@ -90,6 +90,9 @@ function App() {
                 dotsFloatSpeed={DOTS_FLOAT_SPEED}
                 rotationSpeed={ROTATION_SPEED}
                 edges={edges}
+                orbitCenter={[0, 0, 0]}
+                orbitSpeed={0.5}
+                orbitDirection={1}
             />
             <GlowSphere
                 positions={positions}
@@ -99,6 +102,9 @@ function App() {
                 dotsFloatSpeed={DOTS_FLOAT_SPEED}
                 rotationSpeed={ROTATION_SPEED}
                 edges={edges}
+                orbitCenter={[0, 0, 0]}
+                orbitSpeed={0.5}
+                orbitDirection={1}
             />
             <OrbitControls />
         </Canvas>
