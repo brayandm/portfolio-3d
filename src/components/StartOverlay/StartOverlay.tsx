@@ -30,6 +30,15 @@ export function StartOverlay({
         }
     }, [visible]);
 
+    useEffect(() => {
+        if (!visible) return;
+        const onKey = () => {
+            if (!fading) setFading(true);
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [visible, fading]);
+
     const handleClick = useCallback(() => {
         if (!fading) setFading(true);
     }, [fading]);
@@ -44,26 +53,32 @@ export function StartOverlay({
         <Html prepend>
             <div
                 onClick={handleClick}
-                onTransitionEnd={handleTransitionEnd}
                 style={{
                     position: "fixed",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    fontFamily: "Montserrat, sans-serif",
-                    fontWeight: 600,
-                    letterSpacing: 6,
-                    fontSize: 56,
-                    color: "#00ffe1",
-                    textShadow:
-                        "0 0 6px #00fff2, 0 0 12px #00fff2, 0 0 24px #00fff2, 0 0 48px #00a1ff, 0 0 72px #0066ff",
-                    cursor: "pointer",
-                    userSelect: "none",
-                    opacity: fading ? 0 : appeared ? 1 : 0,
-                    transition: `opacity ${fadeMs}ms ease`,
+                    inset: 0,
                 }}
             >
-                START
+                <div
+                    onTransitionEnd={handleTransitionEnd}
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        fontFamily: "Montserrat, sans-serif",
+                        fontWeight: 600,
+                        letterSpacing: 6,
+                        fontSize: 56,
+                        color: "#00ffe1",
+                        textShadow:
+                            "0 0 6px #00fff2, 0 0 12px #00fff2, 0 0 24px #00fff2, 0 0 48px #00a1ff, 0 0 72px #0066ff",
+                        userSelect: "none",
+                        opacity: fading ? 0 : appeared ? 1 : 0,
+                        transition: `opacity ${fadeMs}ms ease`,
+                    }}
+                >
+                    START
+                </div>
             </div>
         </Html>
     );
