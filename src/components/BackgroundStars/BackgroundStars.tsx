@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Random } from "../../utils/random";
 
@@ -12,6 +13,7 @@ type BackgroundStarsProps = {
     size?: number;
     innerHoleRadius?: number;
     shellThickness?: number;
+    fadeRange?: number;
 };
 
 export function BackgroundStars({
@@ -22,6 +24,7 @@ export function BackgroundStars({
     size = 1,
     innerHoleRadius = 10,
     shellThickness = 0.6,
+    fadeRange = 8,
 }: BackgroundStarsProps) {
     const rng = useMemo(() => new Random(0), []);
 
@@ -120,6 +123,13 @@ export function BackgroundStars({
         return arr;
     }, [countInner, countOuter, size, rng]);
 
+    const groups = useMemo(() => {
+        const totalCount = countInner + countOuter;
+        const arr = new Float32Array(totalCount);
+        for (let i = 0; i < totalCount; i++) arr[i] = i < countInner ? 0 : 1;
+        return arr;
+    }, [countInner, countOuter]);
+
     const twinkleFlags = useMemo(() => {
         const totalCount = countInner + countOuter;
         const arr = new Float32Array(totalCount);
@@ -151,13 +161,17 @@ export function BackgroundStars({
         attribute float aTwinkle;
         attribute float aPhase;
         attribute float aSpeed;
+        attribute float aGroup;
         uniform float uTime;
+        uniform float uOuterVisibility;
         varying vec3 vColor;
         varying float vTwinkle;
+        varying float vGroup;
         void main() {
             vColor = aColor;
             float tw = 1.0;
             vTwinkle = tw;
+            vGroup = aGroup;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             gl_PointSize = aSize;
             gl_Position = projectionMatrix * mvPosition;
@@ -169,15 +183,30 @@ export function BackgroundStars({
         () => `
         varying vec3 vColor;
         varying float vTwinkle;
+        varying float vGroup;
+        uniform float uOuterVisibility;
         void main() {
             vec2 c = gl_PointCoord - vec2(0.5);
             float d = length(c);
             float alpha = smoothstep(0.5, 0.0, d) * vTwinkle;
+            float vis = mix(1.0, uOuterVisibility, vGroup);
+            alpha *= vis;
             gl_FragColor = vec4(vColor, alpha);
         }
     `,
         [],
     );
+
+    useFrame((state) => {
+        const cam = state.camera;
+        const d = cam.position.length();
+        const start = innerHoleRadius + fadeRange;
+        const end = Math.max(0, innerHoleRadius - fadeRange);
+        const vis = THREE.MathUtils.smoothstep(d, end, start);
+        if (materialRef.current) {
+            materialRef.current.uniforms.uOuterVisibility.value = vis;
+        }
+    });
 
     return (
         <group renderOrder={-1}>
@@ -194,6 +223,10 @@ export function BackgroundStars({
                     <bufferAttribute
                         attach="attributes-aSize"
                         args={[sizes, 1]}
+                    />
+                    <bufferAttribute
+                        attach="attributes-aGroup"
+                        args={[groups, 1]}
                     />
                     <bufferAttribute
                         attach="attributes-aTwinkle"
@@ -220,6 +253,7 @@ export function BackgroundStars({
                             blending: THREE.NormalBlending,
                             uniforms: {
                                 uTime: { value: 0 },
+                                uOuterVisibility: { value: 1 },
                             },
                         },
                     ]}
