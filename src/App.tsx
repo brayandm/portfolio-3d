@@ -48,10 +48,10 @@ function App() {
         >
             <BackgroundStars
                 count={1500}
-                radius={20}
-                depth={1}
+                radius={15}
+                depth={10}
                 size={2}
-                rotationSpeed={0.01}
+                rotationSpeed={0.005}
             />
             <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={100} />
             <ambientLight intensity={0.5} />
