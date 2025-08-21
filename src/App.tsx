@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, OrthographicCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
+import { BackgroundStars } from "./components/BackgroundStars/BackgroundStars";
 
 function App() {
     const DOTS_COUNT = 20;
@@ -45,7 +46,14 @@ function App() {
         <Canvas
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
-            <OrthographicCamera makeDefault position={[0, 0, 100]} zoom={100} />
+            <BackgroundStars
+                count={1500}
+                radius={20}
+                depth={1}
+                size={2}
+                rotationSpeed={0.01}
+            />
+            <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={100} />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
             <GlowSphere
