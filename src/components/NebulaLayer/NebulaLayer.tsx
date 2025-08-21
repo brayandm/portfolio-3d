@@ -1,6 +1,7 @@
 import { Billboard } from "@react-three/drei";
 import { useMemo } from "react";
 import { Color, Vector3 } from "three";
+import { random } from "../../utils/random";
 
 type NebulaLayerProps = {
 	count?: number;
@@ -20,16 +21,16 @@ export function NebulaLayer({
 	const instances = useMemo(() => {
 		const out: { position: Vector3; scale: number; color: Color }[] = [];
 		for (let i = 0; i < count; i++) {
-			const theta = Math.random() * Math.PI * 2;
-			const phi = Math.acos(2 * Math.random() - 1);
-			const r = radius * (0.6 + Math.random() * 0.4);
+			const theta = random() * Math.PI * 2;
+			const phi = Math.acos(2 * random() - 1);
+			const r = radius * (0.6 + random() * 0.4);
 			const pos = new Vector3(
 				r * Math.sin(phi) * Math.cos(theta),
 				r * Math.sin(phi) * Math.sin(theta),
 				r * Math.cos(phi),
 			);
-			const scale = scaleRange[0] + Math.random() * (scaleRange[1] - scaleRange[0]);
-			const color = new Color(colors[Math.floor(Math.random() * colors.length)]);
+			const scale = scaleRange[0] + random() * (scaleRange[1] - scaleRange[0]);
+			const color = new Color(colors[Math.floor(random() * colors.length)]);
 			out.push({ position: pos, scale, color });
 		}
 		return out;

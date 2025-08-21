@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { random } from "../../utils/random";
 
 const STAR_TWINKLE_PROB = 0.1;
 
@@ -22,11 +23,11 @@ export function BackgroundStars({
     const positions = useMemo(() => {
         const arr = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
-            const u = Math.random();
-            const v = Math.random();
+            const u = random();
+            const v = random();
             const theta = 2 * Math.PI * u;
             const phi = Math.acos(2 * v - 1);
-            const r = radius + Math.random() * depth;
+            const r = radius + random() * depth;
             const x = r * Math.sin(phi) * Math.cos(theta);
             const y = r * Math.sin(phi) * Math.sin(theta);
             const z = r * Math.cos(phi);
@@ -40,7 +41,7 @@ export function BackgroundStars({
     const colors = useMemo(() => {
         const arr = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
-            const r = Math.random();
+            const r = random();
             let c0: THREE.Color;
             let c1: THREE.Color;
             let whiteMixMin = 0.05;
@@ -65,10 +66,10 @@ export function BackgroundStars({
                 c1 = new THREE.Color(1.0, 0.65, 0.65);
                 whiteMixMax = 0.25;
             }
-            const t = Math.random();
+            const t = random();
             const base = new THREE.Color().lerpColors(c0, c1, t);
             const whiteMix =
-                whiteMixMin + Math.random() * (whiteMixMax - whiteMixMin);
+                whiteMixMin + random() * (whiteMixMax - whiteMixMin);
             const c = base.lerp(new THREE.Color(1, 1, 1), whiteMix);
             arr[i * 3 + 0] = c.r;
             arr[i * 3 + 1] = c.g;
@@ -80,7 +81,7 @@ export function BackgroundStars({
     const sizes = useMemo(() => {
         const arr = new Float32Array(count);
         for (let i = 0; i < count; i++) {
-            const r = Math.pow(Math.random(), 3);
+            const r = Math.pow(random(), 3);
             arr[i] = size * (2 + r * 3);
         }
         return arr;
@@ -89,19 +90,19 @@ export function BackgroundStars({
     const twinkleFlags = useMemo(() => {
         const arr = new Float32Array(count);
         for (let i = 0; i < count; i++)
-            arr[i] = Math.random() < STAR_TWINKLE_PROB ? 1 : 0;
+            arr[i] = random() < STAR_TWINKLE_PROB ? 1 : 0;
         return arr;
     }, [count]);
 
     const twinklePhases = useMemo(() => {
         const arr = new Float32Array(count);
-        for (let i = 0; i < count; i++) arr[i] = Math.random() * Math.PI * 2;
+        for (let i = 0; i < count; i++) arr[i] = random() * Math.PI * 2;
         return arr;
     }, [count]);
 
     const twinkleSpeeds = useMemo(() => {
         const arr = new Float32Array(count);
-        for (let i = 0; i < count; i++) arr[i] = 0 + Math.random() * 1.2;
+        for (let i = 0; i < count; i++) arr[i] = 0 + random() * 1.2;
         return arr;
     }, [count]);
 
