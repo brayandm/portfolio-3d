@@ -68,14 +68,9 @@ function App() {
                 radius={15}
                 depth={10}
                 size={2}
-                rotationSpeed={0.01}
+                rotationSpeed={0.005}
             />
-            <OrthographicCamera
-                makeDefault
-                position={[0, -10, 0]}
-                rotation={[Math.PI / 2, 0, 0]}
-                zoom={100}
-            />
+            <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={100} />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
             <GlowSphere

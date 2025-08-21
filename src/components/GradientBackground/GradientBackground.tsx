@@ -15,11 +15,12 @@ export function GradientBackground({
 	const materialRef = useRef<ShaderMaterial>(null!);
 	const vertexShader = useMemo(
 		() => `
-			varying vec3 vWorld;
+			varying vec3 vView;
 			void main() {
 				vec4 wp = modelMatrix * vec4(position, 1.0);
-				vWorld = wp.xyz;
-				gl_Position = projectionMatrix * viewMatrix * wp;
+				vec4 vp = viewMatrix * wp;
+				vView = vp.xyz;
+				gl_Position = projectionMatrix * vp;
 			}
 		`,
 		[],
@@ -28,10 +29,11 @@ export function GradientBackground({
 		() => `
 			uniform vec3 uTop;
 			uniform vec3 uBottom;
-			varying vec3 vWorld;
+			uniform float uRadius;
+			varying vec3 vView;
 			void main() {
-				float h = normalize(vWorld).y * 0.5 + 0.5;
-				vec3 col = mix(uBottom, uTop, smoothstep(0.0, 1.0, h));
+				float d = clamp((-vView.z) / uRadius, 0.0, 1.0);
+				vec3 col = mix(uBottom, uTop, d);
 				gl_FragColor = vec4(col, 1.0);
 			}
 		`,
@@ -50,6 +52,7 @@ export function GradientBackground({
 					uniforms: {
 						uTop: { value: new Color(colorTop) },
 						uBottom: { value: new Color(colorBottom) },
+						uRadius: { value: innerRadius },
 					},
 				}]}
 			/>
