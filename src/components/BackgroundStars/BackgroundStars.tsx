@@ -14,6 +14,8 @@ type BackgroundStarsProps = {
     innerHoleRadius?: number;
     shellThickness?: number;
     fadeRange?: number;
+    outerRotationSpeed?: number;
+    innerRotationSpeed?: number;
 };
 
 export function BackgroundStars({
@@ -25,6 +27,8 @@ export function BackgroundStars({
     innerHoleRadius = 10,
     shellThickness = 0.6,
     fadeRange = 8,
+    outerRotationSpeed = 0.05,
+    innerRotationSpeed = 0.01,
 }: BackgroundStarsProps) {
     const rng = useMemo(() => new Random(0), []);
 
@@ -61,7 +65,10 @@ export function BackgroundStars({
             const offset = (rng.random() - 0.5) * spread * r;
             const x = Math.cos(angle) * (r + offset);
             const y = Math.sin(angle) * (r + offset);
-            const z = (rng.random() - 0.5) * (radius * 0.12 + depth * 0.25) * (1 - r01);
+            const z =
+                (rng.random() - 0.5) *
+                (radius * 0.12 + depth * 0.25) *
+                (1 - r01);
             const d = Math.sqrt(x * x + y * y + z * z);
             if (d < innerHoleRadius) continue;
             arr[w * 3 + 0] = x;
@@ -70,7 +77,15 @@ export function BackgroundStars({
             w++;
         }
         return arr;
-    }, [countInner, countOuter, radius, depth, innerHoleRadius, shellThickness, rng]);
+    }, [
+        countInner,
+        countOuter,
+        radius,
+        depth,
+        innerHoleRadius,
+        shellThickness,
+        rng,
+    ]);
 
     const colors = useMemo(() => {
         const totalCount = countInner + countOuter;
@@ -141,7 +156,8 @@ export function BackgroundStars({
     const twinklePhases = useMemo(() => {
         const totalCount = countInner + countOuter;
         const arr = new Float32Array(totalCount);
-        for (let i = 0; i < totalCount; i++) arr[i] = rng.random() * Math.PI * 2;
+        for (let i = 0; i < totalCount; i++)
+            arr[i] = rng.random() * Math.PI * 2;
         return arr;
     }, [countInner, countOuter, rng]);
 
@@ -164,6 +180,7 @@ export function BackgroundStars({
         attribute float aGroup;
         uniform float uTime;
         uniform float uOuterVisibility;
+        uniform float uAngle;
         varying vec3 vColor;
         varying float vTwinkle;
         varying float vGroup;
@@ -172,7 +189,11 @@ export function BackgroundStars({
             float tw = 1.0;
             vTwinkle = tw;
             vGroup = aGroup;
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vec3 pos = position;
+            float s = sin(uAngle);
+            float c = cos(uAngle);
+            pos = vec3(c * pos.x - s * pos.y, s * pos.x + c * pos.y, pos.z);
+            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
             gl_PointSize = aSize;
             gl_Position = projectionMatrix * mvPosition;
         }
@@ -197,14 +218,27 @@ export function BackgroundStars({
         [],
     );
 
+    const angleRef = useRef(0);
+    const prevTimeRef = useRef(0);
+
     useFrame((state) => {
         const cam = state.camera;
         const d = cam.position.length();
         const start = innerHoleRadius + fadeRange;
         const end = Math.max(0, innerHoleRadius - fadeRange);
         const vis = THREE.MathUtils.smoothstep(d, end, start);
+        const t = state.clock.elapsedTime;
+        const dt = Math.max(0, t - prevTimeRef.current);
+        prevTimeRef.current = t;
+        const speed = THREE.MathUtils.lerp(
+            innerRotationSpeed,
+            outerRotationSpeed,
+            vis,
+        );
+        angleRef.current += dt * speed;
         if (materialRef.current) {
             materialRef.current.uniforms.uOuterVisibility.value = vis;
+            materialRef.current.uniforms.uAngle.value = angleRef.current;
         }
     });
 
@@ -254,6 +288,7 @@ export function BackgroundStars({
                             uniforms: {
                                 uTime: { value: 0 },
                                 uOuterVisibility: { value: 1 },
+                                uAngle: { value: 0 },
                             },
                         },
                     ]}
@@ -262,4 +297,3 @@ export function BackgroundStars({
         </group>
     );
 }
-
