@@ -62,7 +62,7 @@ function App() {
                 duration={3}
                 target={[0, 0, 0]}
                 lookAt={[0, 0, 0]}
-                stopDistance={5}
+                stopDistance={10}
             />
             <GradientBackground
                 innerRadius={10000}
