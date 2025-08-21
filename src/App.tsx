@@ -106,6 +106,7 @@ function App() {
                 orbitCenter={[0, 0, 0]}
                 orbitSpeed={0.5}
                 orbitDirection={1}
+                size={1.2}
             />
             <GlowSphere
                 positions={positions}
@@ -118,6 +119,7 @@ function App() {
                 orbitCenter={[0, 0, 0]}
                 orbitSpeed={0.5}
                 orbitDirection={1}
+                size={1.5}
             />
             <OrbitControls />
         </Canvas>

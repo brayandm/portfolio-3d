@@ -8,6 +8,7 @@ type GlowSphereProps = {
     positions: Float32Array;
     color?: THREE.ColorRepresentation;
     position?: [number, number, number];
+    size?: number;
     dotsFloatAmplitude?: number;
     dotsFloatSpeed?: number;
     rotationSpeed?: number;
@@ -24,6 +25,7 @@ export function GlowSphere({
     positions,
     color = "#66ccff",
     position = [0, 0, 0],
+    size = 1,
     dotsFloatAmplitude = 0.05,
     dotsFloatSpeed = 0.6,
     rotationSpeed = 0.2,
@@ -124,7 +126,7 @@ export function GlowSphere({
     });
 
     return (
-        <group ref={groupRef} position={position}>
+        <group ref={groupRef} position={position} scale={[size, size, size]}>
             <mesh>
                 <sphereGeometry args={[0.75, 64, 64]} />
                 <meshStandardMaterial
