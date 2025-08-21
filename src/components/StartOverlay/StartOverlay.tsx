@@ -36,15 +36,6 @@ export function StartOverlay({
         }
     }, [visible]);
 
-    useEffect(() => {
-        if (!visible) return;
-        const onKey = () => {
-            if (!fading) setFading(true);
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, [visible, fading]);
-
     const handleClick = useCallback(() => {
         if (!fading) setFading(true);
         startMusic();

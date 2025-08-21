@@ -16,6 +16,7 @@ function App() {
     const startMusic = () => {
         const el = audioRef.current;
         if (el) {
+            el.loop = true;
             el.currentTime = 0;
             el.play().catch(() => {});
         }
@@ -64,7 +65,7 @@ function App() {
     }, [positions, rng]);
     return (
         <>
-            <audio ref={audioRef} src="/audio.mp3" preload="auto" />
+            <audio ref={audioRef} src="/audio.mp3" preload="auto" loop />
             <Canvas
                 camera={{ position: [50, -400, 280], far: 100000000 }}
                 style={{ background: "black", width: "100vw", height: "100vh" }}
