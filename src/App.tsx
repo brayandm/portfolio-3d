@@ -6,10 +6,10 @@ import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 
 function App() {
     const DOTS_COUNT = 20;
+    const EDGE_COUNT = 5;
     const DOTS_FLOAT_AMPLITUDE = 0.01;
     const DOTS_FLOAT_SPEED = 1;
     const ROTATION_SPEED = 0.2;
-    const EDGE_COUNT = 12;
     const positions = useMemo(() => {
         const count = DOTS_COUNT;
         const arr = new Float32Array(count * 3);

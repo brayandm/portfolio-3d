@@ -24,7 +24,7 @@ export function GlowSphere({
     dotsFloatSpeed = 0.6,
     rotationSpeed = 0.2,
     edges,
-    edgeWidth = 0.006,
+    edgeWidth = 0.004,
     edgeSegments = 32,
 }: GlowSphereProps) {
     const rimMatRef = useRef<THREE.ShaderMaterial>(null!);
