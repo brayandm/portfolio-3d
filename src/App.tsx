@@ -10,7 +10,7 @@ import { NebulaLayer } from "./components/NebulaLayer/NebulaLayer";
 
 function App() {
     const DOTS_COUNT = 20;
-    const EDGE_COUNT = 5;
+    const EDGE_COUNT = 10;
     const DOTS_FLOAT_AMPLITUDE = 0.01;
     const DOTS_FLOAT_SPEED = 1;
     const ROTATION_SPEED = 0.2;

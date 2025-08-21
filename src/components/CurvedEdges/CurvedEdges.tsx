@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 type EdgesProps = {
@@ -16,7 +17,6 @@ export function CurvedEdges({
     width,
     segments,
 }: EdgesProps) {
-
     const geoms = useMemo(() => {
         const toVec3 = (i: number) =>
             new THREE.Vector3(
@@ -24,7 +24,7 @@ export function CurvedEdges({
                 positions[i * 3 + 1],
                 positions[i * 3 + 2],
             );
-        const arr: THREE.TubeGeometry[] = [];
+        const arr: { geom: THREE.TubeGeometry; dir: 1 | -1 }[] = [];
         const tmp = new THREE.Vector3();
         for (const [a, b] of edges) {
             const v0 = toVec3(a);
@@ -43,21 +43,85 @@ export function CurvedEdges({
                 8,
                 false,
             );
-            arr.push(geom);
+            const tubularSegments = segments * 2;
+            const radialSegments = 8;
+            const ringCount = tubularSegments + 1;
+            const ringSize = radialSegments + 1;
+            const tAttr = new Float32Array(ringCount * ringSize);
+            for (let i = 0; i < ringCount; i++) {
+                const t = i / tubularSegments;
+                for (let j = 0; j < ringSize; j++) tAttr[i * ringSize + j] = t;
+            }
+            geom.setAttribute("aT", new THREE.BufferAttribute(tAttr, 1));
+            const dir: 1 | -1 = 1;
+            arr.push({ geom, dir });
         }
         return arr;
     }, [edges, positions, segments, width]);
 
+    const mats = useRef<THREE.ShaderMaterial[]>([]);
+    const vertex = useMemo(
+        () => `
+        attribute float aT;
+        varying float vT;
+        void main(){
+            vT = aT;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+        `,
+        [],
+    );
+    const fragment = useMemo(
+        () => `
+        uniform vec3 uColor;
+        uniform float uTime;
+        uniform float uSpeed;
+        uniform float uBaseOpacity;
+        uniform float uPulseWidth;
+        uniform float uPulseIntensity;
+        varying float vT;
+        float pulse(float t, float center, float w){
+            float d = abs(fract(t - center));
+            d = min(d, 1.0 - d);
+            float fall = smoothstep(w, 0.0, d);
+            return fall;
+        }
+        void main(){
+            float head = fract(uTime * uSpeed);
+            float band = pulse(vT, head, uPulseWidth);
+            float alpha = clamp(uBaseOpacity + band * uPulseIntensity, 0.0, 1.0);
+            gl_FragColor = vec4(uColor, alpha);
+        }
+        `,
+        [],
+    );
+    useFrame((_, delta) => {
+        for (const m of mats.current) if (m) m.uniforms.uTime.value += delta;
+    });
+
     return (
         <group renderOrder={10}>
             {geoms.map((g, i) => (
-                <mesh key={i} geometry={g}>
-                    <meshBasicMaterial
-                        color={color}
-                        transparent
-                        opacity={0.35}
-                        blending={THREE.AdditiveBlending}
-                        depthWrite={false}
+                <mesh key={i} geometry={g.geom}>
+                    <shaderMaterial
+                        ref={(el) => {
+                            if (el) mats.current[i] = el;
+                        }}
+                        args={[{
+                            vertexShader: vertex,
+                            fragmentShader: fragment,
+                            transparent: true,
+                            blending: THREE.AdditiveBlending,
+                            depthWrite: false,
+                            uniforms: {
+                                uColor: { value: color },
+                                uTime: { value: 0 },
+                                uSpeed: { value: 0.5 },
+                                uBaseOpacity: { value: 0.15 },
+                                uPulseWidth: { value: 0.06 },
+                                uPulseIntensity: { value: 0.85 },
+                            },
+                        }]} 
                     />
                 </mesh>
             ))}
