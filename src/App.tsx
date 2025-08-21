@@ -61,8 +61,8 @@ function App() {
             <NebulaLayer
                 count={10}
                 radius={45}
-                opacity={0.05}
-                scaleRange={[20, 40]}
+                opacity={0.03}
+                scaleRange={[20, 100]}
             />
             <BackgroundStars
                 count={1500}
