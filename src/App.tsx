@@ -107,6 +107,8 @@ function App() {
                 orbitSpeed={0.5}
                 orbitDirection={1}
                 size={1.2}
+                ring={true}
+                ringColor="red"
             />
             <GlowSphere
                 positions={positions}
@@ -122,10 +124,6 @@ function App() {
                 size={1.5}
                 atmosphere
                 atmosphereColor="yellow"
-                atmosphereIntensity={0.9}
-                atmospherePower={1}
-                atmosphereOpacity={0.4}
-                atmosphereOffset={0.2}
             />
             <OrbitControls />
         </Canvas>

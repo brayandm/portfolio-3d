@@ -25,6 +25,15 @@ type GlowSphereProps = {
     atmospherePower?: number;
     atmosphereOpacity?: number;
     atmosphereOffset?: number;
+    ring?: boolean;
+    ringColor?: THREE.ColorRepresentation;
+    ringInner?: number;
+    ringOuter?: number;
+    ringOpacity?: number;
+    ringTilt?: [number, number, number];
+    ringSegments?: number;
+    ringSoftness?: number;
+    ringRimPower?: number;
 };
 
 export function GlowSphere({
@@ -43,11 +52,20 @@ export function GlowSphere({
     orbitDirection = 1,
     orbitAxis = [0, 1, 0],
     atmosphere = false,
-    atmosphereColor,
-    atmosphereIntensity = 0.7,
-    atmospherePower = 2.2,
-    atmosphereOpacity = 0.35,
-    atmosphereOffset = 0.05,
+    atmosphereColor = "#66ccff",
+    atmosphereIntensity = 1,
+    atmospherePower = 1,
+    atmosphereOpacity = 0.4,
+    atmosphereOffset = 0.2,
+    ring = false,
+    ringColor,
+    ringInner = 1.0,
+    ringOuter = 1.5,
+    ringOpacity = 0.25,
+    ringTilt = [15, 15, 15],
+    ringSegments = 50,
+    ringSoftness = 0.8,
+    ringRimPower = 2.0,
 }: GlowSphereProps) {
     const rimMatRef = useRef<THREE.ShaderMaterial>(null!);
     const groupRef = useRef<THREE.Group>(null!);
@@ -141,7 +159,58 @@ export function GlowSphere({
             uIntensity: { value: atmosphereIntensity },
             uOpacity: { value: atmosphereOpacity },
         }),
-        [atmosphereColorFinal, atmospherePower, atmosphereIntensity, atmosphereOpacity],
+        [
+            atmosphereColorFinal,
+            atmospherePower,
+            atmosphereIntensity,
+            atmosphereOpacity,
+        ],
+    );
+    const ringColorFinal = useMemo(
+        () => new THREE.Color(ringColor || color),
+        [ringColor, color],
+    );
+    const ringEuler = useMemo(
+        () =>
+            new THREE.Euler(
+                THREE.MathUtils.degToRad(ringTilt[0] || 0),
+                THREE.MathUtils.degToRad(ringTilt[1] || 0),
+                THREE.MathUtils.degToRad(ringTilt[2] || 0),
+            ),
+        [ringTilt],
+    );
+    const ringVertex = useMemo(
+        () => `
+        varying vec2 vPos;
+        void main() {
+            vPos = position.xy;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+        `,
+        [],
+    );
+    const ringFragment = useMemo(
+        () => `
+        uniform vec3 uColor;
+        uniform float uInner;
+        uniform float uOuter;
+        uniform float uOpacity;
+        uniform float uSoftness;
+        uniform float uRimPower;
+        varying vec2 vPos;
+        void main() {
+            float r = length(vPos);
+            float t = clamp((r - uInner) / max(0.0001, (uOuter - uInner)), 0.0, 1.0);
+            float innerEdge = 1.0 - smoothstep(0.0, uSoftness, t);
+            float outerEdge = smoothstep(1.0 - uSoftness, 1.0, t);
+            float edge = max(innerEdge, outerEdge);
+            float rim = pow(edge, uRimPower);
+            vec3 col = uColor * (0.3 + rim * 0.7);
+            float alpha = edge * uOpacity;
+            gl_FragColor = vec4(col, alpha);
+        }
+        `,
+        [],
     );
 
     useFrame((_, delta) => {
@@ -206,6 +275,31 @@ export function GlowSphere({
                                 fragmentShader: fragmentShaderAtmos,
                                 transparent: true,
                                 blending: THREE.AdditiveBlending,
+                                depthWrite: false,
+                            },
+                        ]}
+                    />
+                </mesh>
+            )}
+            {ring && (
+                <mesh rotation={ringEuler}>
+                    <ringGeometry args={[ringInner, ringOuter, ringSegments]} />
+                    <shaderMaterial
+                        args={[
+                            {
+                                uniforms: {
+                                    uColor: { value: ringColorFinal.clone() },
+                                    uInner: { value: ringInner },
+                                    uOuter: { value: ringOuter },
+                                    uOpacity: { value: ringOpacity },
+                                    uSoftness: { value: ringSoftness },
+                                    uRimPower: { value: ringRimPower },
+                                },
+                                vertexShader: ringVertex,
+                                fragmentShader: ringFragment,
+                                transparent: true,
+                                blending: THREE.AdditiveBlending,
+                                side: THREE.DoubleSide,
                                 depthWrite: false,
                             },
                         ]}
