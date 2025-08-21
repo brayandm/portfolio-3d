@@ -50,11 +50,11 @@ function App() {
     }, [positions, rng]);
     return (
         <Canvas
-            camera={{ position: [0, 0, 5] }}
+            camera={{ position: [0, 0, 500], far: 100000000 }}
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
             <GradientBackground
-                innerRadius={350}
+                innerRadius={10000}
                 colorTop="#1a1446"
                 colorBottom="#020611"
             />
@@ -66,10 +66,12 @@ function App() {
             />
             <BackgroundStars
                 count={1500}
-                radius={100}
+                radius={300}
                 depth={10}
                 size={2}
-                rotationSpeed={0.005}
+                innerHoleRadius={80}
+                shellThickness={10}
+                shellRatio={0.5}
             />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />

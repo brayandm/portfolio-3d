@@ -1,5 +1,4 @@
 import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Random } from "../../utils/random";
 
@@ -10,7 +9,9 @@ type BackgroundStarsProps = {
     radius?: number;
     depth?: number;
     size?: number;
-    rotationSpeed?: number;
+    innerHoleRadius?: number;
+    shellThickness?: number;
+    shellRatio?: number;
 };
 
 export function BackgroundStars({
@@ -18,18 +19,22 @@ export function BackgroundStars({
     radius = 60,
     depth = 40,
     size = 1,
-    rotationSpeed = 0.02,
+    innerHoleRadius = 10,
+    shellThickness = 0.6,
+    shellRatio = 0.15,
 }: BackgroundStarsProps) {
     const rng = useMemo(() => new Random(0), []);
 
     const positions = useMemo(() => {
         const arr = new Float32Array(count * 3);
-        for (let i = 0; i < count; i++) {
+        const shellCount = Math.floor(count * shellRatio);
+        const shellR = innerHoleRadius;
+        for (let i = 0; i < shellCount; i++) {
             const u = rng.random();
             const v = rng.random();
             const theta = 2 * Math.PI * u;
             const phi = Math.acos(2 * v - 1);
-            const r = radius + rng.random() * depth;
+            const r = shellR + (rng.random() - 0.5) * shellThickness;
             const x = r * Math.sin(phi) * Math.cos(theta);
             const y = r * Math.sin(phi) * Math.sin(theta);
             const z = r * Math.cos(phi);
@@ -37,8 +42,31 @@ export function BackgroundStars({
             arr[i * 3 + 1] = y;
             arr[i * 3 + 2] = z;
         }
+        const arms = 4;
+        const armSeparation = (2 * Math.PI) / arms;
+        const spin = 2.5;
+        let w = shellCount;
+        while (w < count) {
+            const r01 = Math.pow(rng.random(), 0.6);
+            const r = (radius * 0.7 + depth * 1.1) * r01 + radius * 0.4;
+            const arm = Math.floor(rng.random() * arms);
+            const baseAngle = arm * armSeparation + r * 0.02 * spin;
+            const noiseAngle = (rng.random() - 0.5) * 0.5;
+            const angle = baseAngle + noiseAngle;
+            const spread = 0.16 + 0.22 * (1 - r01);
+            const offset = (rng.random() - 0.5) * spread * r;
+            const x = Math.cos(angle) * (r + offset);
+            const y = Math.sin(angle) * (r + offset);
+            const z = (rng.random() - 0.5) * (radius * 0.12 + depth * 0.25) * (1 - r01);
+            const d = Math.sqrt(x * x + y * y + z * z);
+            if (d < innerHoleRadius) continue;
+            arr[w * 3 + 0] = x;
+            arr[w * 3 + 1] = y;
+            arr[w * 3 + 2] = z;
+            w++;
+        }
         return arr;
-    }, [count, radius, depth, rng]);
+    }, [count, radius, depth, innerHoleRadius, shellRatio, shellThickness, rng]);
 
     const colors = useMemo(() => {
         const arr = new Float32Array(count * 3);
@@ -108,14 +136,7 @@ export function BackgroundStars({
         return arr;
     }, [count, rng]);
 
-    const groupRef = useRef<THREE.Group>(null!);
     const materialRef = useRef<THREE.ShaderMaterial>(null!);
-    useFrame((_, delta) => {
-        if (groupRef.current)
-            groupRef.current.rotation.y += rotationSpeed * delta;
-        if (materialRef.current)
-            materialRef.current.uniforms.uTime.value += delta;
-    });
 
     const vertexShader = useMemo(
         () => `
@@ -129,7 +150,7 @@ export function BackgroundStars({
         varying float vTwinkle;
         void main() {
             vColor = aColor;
-            float tw = aTwinkle > 0.5 ? (0.5 + 0.5 * abs(sin(uTime * aSpeed + aPhase))) : 1.0;
+            float tw = 1.0;
             vTwinkle = tw;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             gl_PointSize = aSize;
@@ -153,7 +174,7 @@ export function BackgroundStars({
     );
 
     return (
-        <group ref={groupRef} renderOrder={-1}>
+        <group renderOrder={-1}>
             <points>
                 <bufferGeometry>
                     <bufferAttribute
