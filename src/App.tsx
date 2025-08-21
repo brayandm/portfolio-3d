@@ -1,23 +1,6 @@
-import { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-
-function Cube() {
-    const meshRef = useRef<THREE.Mesh>(null!);
-
-    useFrame((_, delta) => {
-        meshRef.current.rotation.y += delta;
-        meshRef.current.rotation.x += delta * 0.5;
-    });
-
-    return (
-        <mesh ref={meshRef}>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color="tomato" />
-        </mesh>
-    );
-}
+import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 
 function App() {
     return (
@@ -27,7 +10,7 @@ function App() {
         >
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
-            <Cube />
+            <GlowSphere />
             <OrbitControls />
         </Canvas>
     );
