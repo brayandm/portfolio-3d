@@ -48,7 +48,7 @@ function App() {
         >
             <BackgroundStars
                 count={1500}
-                radius={15}
+                radius={20}
                 depth={10}
                 size={2}
                 rotationSpeed={0.005}

@@ -2,6 +2,8 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+const STAR_TWINKLE_PROB = 0.1;
+
 type BackgroundStarsProps = {
     count?: number;
     radius?: number;
@@ -79,24 +81,53 @@ export function BackgroundStars({
         const arr = new Float32Array(count);
         for (let i = 0; i < count; i++) {
             const r = Math.pow(Math.random(), 3);
-            arr[i] = size * (0.6 + r * 3.4);
+            arr[i] = size * (2 + r * 3);
         }
         return arr;
     }, [count, size]);
 
+    const twinkleFlags = useMemo(() => {
+        const arr = new Float32Array(count);
+        for (let i = 0; i < count; i++)
+            arr[i] = Math.random() < STAR_TWINKLE_PROB ? 1 : 0;
+        return arr;
+    }, [count]);
+
+    const twinklePhases = useMemo(() => {
+        const arr = new Float32Array(count);
+        for (let i = 0; i < count; i++) arr[i] = Math.random() * Math.PI * 2;
+        return arr;
+    }, [count]);
+
+    const twinkleSpeeds = useMemo(() => {
+        const arr = new Float32Array(count);
+        for (let i = 0; i < count; i++) arr[i] = 0 + Math.random() * 1.2;
+        return arr;
+    }, [count]);
+
     const groupRef = useRef<THREE.Group>(null!);
+    const materialRef = useRef<THREE.ShaderMaterial>(null!);
     useFrame((_, delta) => {
         if (groupRef.current)
             groupRef.current.rotation.y += rotationSpeed * delta;
+        if (materialRef.current)
+            materialRef.current.uniforms.uTime.value += delta;
     });
 
     const vertexShader = useMemo(
         () => `
         attribute float aSize;
         attribute vec3 aColor;
+        attribute float aTwinkle;
+        attribute float aPhase;
+        attribute float aSpeed;
+        uniform float uTime;
         varying vec3 vColor;
+        varying float vTwinkle;
         void main() {
             vColor = aColor;
+            float tw = aTwinkle > 0.5 ? (0.5 + 0.5 * abs(sin(uTime * aSpeed + aPhase))) : 1.0;
+            vTwinkle = tw;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             gl_PointSize = aSize;
             gl_Position = projectionMatrix * mvPosition;
@@ -107,10 +138,11 @@ export function BackgroundStars({
     const fragmentShader = useMemo(
         () => `
         varying vec3 vColor;
+        varying float vTwinkle;
         void main() {
             vec2 c = gl_PointCoord - vec2(0.5);
             float d = length(c);
-            float alpha = smoothstep(0.5, 0.0, d);
+            float alpha = smoothstep(0.5, 0.0, d) * vTwinkle;
             gl_FragColor = vec4(vColor, alpha);
         }
     `,
@@ -133,8 +165,21 @@ export function BackgroundStars({
                         attach="attributes-aSize"
                         args={[sizes, 1]}
                     />
+                    <bufferAttribute
+                        attach="attributes-aTwinkle"
+                        args={[twinkleFlags, 1]}
+                    />
+                    <bufferAttribute
+                        attach="attributes-aPhase"
+                        args={[twinklePhases, 1]}
+                    />
+                    <bufferAttribute
+                        attach="attributes-aSpeed"
+                        args={[twinkleSpeeds, 1]}
+                    />
                 </bufferGeometry>
                 <shaderMaterial
+                    ref={materialRef}
                     args={[
                         {
                             vertexShader,
@@ -143,6 +188,9 @@ export function BackgroundStars({
                             depthWrite: false,
                             depthTest: false,
                             blending: THREE.NormalBlending,
+                            uniforms: {
+                                uTime: { value: 0 },
+                            },
                         },
                     ]}
                 />
