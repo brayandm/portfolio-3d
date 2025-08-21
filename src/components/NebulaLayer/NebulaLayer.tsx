@@ -1,49 +1,54 @@
 import { Billboard } from "@react-three/drei";
 import { useMemo } from "react";
 import { Color, Vector3 } from "three";
-import { random } from "../../utils/random";
+import { Random } from "../../utils/random";
 
 type NebulaLayerProps = {
-	count?: number;
-	radius?: number;
-	scaleRange?: [number, number];
-	colors?: string[];
-	opacity?: number;
+    count?: number;
+    radius?: number;
+    scaleRange?: [number, number];
+    colors?: string[];
+    opacity?: number;
 };
 
 export function NebulaLayer({
-	count = 4,
-	radius = 35,
-	scaleRange = [12, 18],
-	colors = ["#6a4cff", "#24c1e0", "#ff4cc9"],
-	opacity = 0.35,
+    count = 4,
+    radius = 35,
+    scaleRange = [12, 18],
+    colors = ["#6a4cff", "#24c1e0", "#ff4cc9"],
+    opacity = 0.35,
 }: NebulaLayerProps) {
-	const instances = useMemo(() => {
-		const out: { position: Vector3; scale: number; color: Color }[] = [];
-		for (let i = 0; i < count; i++) {
-			const theta = random() * Math.PI * 2;
-			const phi = Math.acos(2 * random() - 1);
-			const r = radius * (0.6 + random() * 0.4);
-			const pos = new Vector3(
-				r * Math.sin(phi) * Math.cos(theta),
-				r * Math.sin(phi) * Math.sin(theta),
-				r * Math.cos(phi),
-			);
-			const scale = scaleRange[0] + random() * (scaleRange[1] - scaleRange[0]);
-			const color = new Color(colors[Math.floor(random() * colors.length)]);
-			out.push({ position: pos, scale, color });
-		}
-		return out;
-	}, [count, radius, scaleRange, colors]);
+    const rng = useMemo(() => new Random(0), []);
 
-	const vertex = `
+    const instances = useMemo(() => {
+        const out: { position: Vector3; scale: number; color: Color }[] = [];
+        for (let i = 0; i < count; i++) {
+            const theta = rng.random() * Math.PI * 2;
+            const phi = Math.acos(2 * rng.random() - 1);
+            const r = radius * (0.6 + rng.random() * 0.4);
+            const pos = new Vector3(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.sin(phi) * Math.sin(theta),
+                r * Math.cos(phi),
+            );
+            const scale =
+                scaleRange[0] + rng.random() * (scaleRange[1] - scaleRange[0]);
+            const color = new Color(
+                colors[Math.floor(rng.random() * colors.length)],
+            );
+            out.push({ position: pos, scale, color });
+        }
+        return out;
+    }, [count, radius, scaleRange, colors, rng]);
+
+    const vertex = `
 		varying vec2 vUv;
 		void main() {
 			vUv = uv;
 			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 		}
 	`;
-	const fragment = `
+    const fragment = `
 		uniform vec3 uColor;
 		uniform float uOpacity;
 		varying vec2 vUv;
@@ -68,29 +73,31 @@ export function NebulaLayer({
 		}
 	`;
 
-	return (
-		<group renderOrder={-5} frustumCulled={false}>
-			{instances.map((it, i) => (
-				<Billboard key={i} position={it.position.toArray()}>
-					<mesh scale={[it.scale, it.scale, 1]}>
-						<planeGeometry args={[1, 1, 1, 1]} />
-						<shaderMaterial
-							args={[{
-								vertexShader: vertex,
-								fragmentShader: fragment,
-								transparent: true,
-								depthWrite: false,
-								depthTest: false,
-								blending: 2,
-								uniforms: {
-									uColor: { value: it.color },
-									uOpacity: { value: opacity },
-								},
-							}]}
-						/>
-					</mesh>
-				</Billboard>
-			))}
-		</group>
-	);
+    return (
+        <group renderOrder={-5} frustumCulled={false}>
+            {instances.map((it, i) => (
+                <Billboard key={i} position={it.position.toArray()}>
+                    <mesh scale={[it.scale, it.scale, 1]}>
+                        <planeGeometry args={[1, 1, 1, 1]} />
+                        <shaderMaterial
+                            args={[
+                                {
+                                    vertexShader: vertex,
+                                    fragmentShader: fragment,
+                                    transparent: true,
+                                    depthWrite: false,
+                                    depthTest: false,
+                                    blending: 2,
+                                    uniforms: {
+                                        uColor: { value: it.color },
+                                        uOpacity: { value: opacity },
+                                    },
+                                },
+                            ]}
+                        />
+                    </mesh>
+                </Billboard>
+            ))}
+        </group>
+    );
 }

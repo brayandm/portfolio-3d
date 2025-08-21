@@ -4,7 +4,7 @@ import { OrbitControls, OrthographicCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 import { BackgroundStars } from "./components/BackgroundStars/BackgroundStars";
-import { random } from "./utils/random";
+import { Random } from "./utils/random";
 import { GradientBackground } from "./components/GradientBackground/GradientBackground";
 import { NebulaLayer } from "./components/NebulaLayer/NebulaLayer";
 
@@ -14,13 +14,16 @@ function App() {
     const DOTS_FLOAT_AMPLITUDE = 0.01;
     const DOTS_FLOAT_SPEED = 1;
     const ROTATION_SPEED = 0.2;
+
+    const rng = useMemo(() => new Random(0), []);
+
     const positions = useMemo(() => {
         const count = DOTS_COUNT;
         const arr = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
-            const x = random() * 2 - 1;
-            const y = random() * 2 - 1;
-            const z = random() * 2 - 1;
+            const x = rng.random() * 2 - 1;
+            const y = rng.random() * 2 - 1;
+            const z = rng.random() * 2 - 1;
             const v = new THREE.Vector3(x, y, z)
                 .normalize()
                 .multiplyScalar(0.77);
@@ -29,14 +32,14 @@ function App() {
             arr[i * 3 + 2] = v.z;
         }
         return arr;
-    }, []);
+    }, [rng]);
     const edges = useMemo(() => {
         const n = positions.length / 3;
         const s = new Set<string>();
         const r: Array<[number, number]> = [];
         while (r.length < Math.min(EDGE_COUNT, (n * (n - 1)) / 2)) {
-            const a = Math.floor(random() * n);
-            const b = Math.floor(random() * n);
+            const a = Math.floor(rng.random() * n);
+            const b = Math.floor(rng.random() * n);
             if (a === b) continue;
             const k = a < b ? `${a}-${b}` : `${b}-${a}`;
             if (s.has(k)) continue;
@@ -44,7 +47,7 @@ function App() {
             r.push([a, b]);
         }
         return r;
-    }, [positions]);
+    }, [positions, rng]);
     return (
         <Canvas
             style={{ background: "black", width: "100vw", height: "100vh" }}
