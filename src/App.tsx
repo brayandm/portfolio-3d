@@ -5,6 +5,9 @@ import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 
 function App() {
+    const DOTS_FLOAT_AMPLITUDE = 0.01;
+    const DOTS_FLOAT_SPEED = 1;
+    const ROTATION_SPEED = 0.2;
     const positions = useMemo(() => {
         const count = 20;
         const arr = new Float32Array(count * 3);
@@ -32,6 +35,9 @@ function App() {
                 positions={positions}
                 color={"#66ccff"}
                 position={[0, 0, 0]}
+                dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                rotationSpeed={ROTATION_SPEED}
             />
             <OrbitControls />
         </Canvas>
