@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -7,8 +7,11 @@ import { BackgroundStars } from "./components/BackgroundStars/BackgroundStars";
 import { Random } from "./utils/random";
 import { GradientBackground } from "./components/GradientBackground/GradientBackground";
 import { NebulaLayer } from "./components/NebulaLayer/NebulaLayer";
+import { StartOverlay } from "./components/StartOverlay/StartOverlay";
+import { CameraAnimator } from "./components/CameraAnimator/CameraAnimator";
 
 function App() {
+    const [started, setStarted] = useState(false);
     const DOTS_COUNT = 20;
     const EDGE_COUNT = 10;
     const DOTS_FLOAT_AMPLITUDE = 0.01;
@@ -53,6 +56,14 @@ function App() {
             camera={{ position: [50, -400, 280], far: 100000000 }}
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
+            {!started && <StartOverlay onStart={() => setStarted(true)} />}
+            <CameraAnimator
+                active={started}
+                duration={3}
+                target={[0, 0, 0]}
+                lookAt={[0, 0, 0]}
+                stopDistance={5}
+            />
             <GradientBackground
                 innerRadius={10000}
                 colorTop="#1a1446"
@@ -67,7 +78,7 @@ function App() {
             <BackgroundStars
                 countInner={400}
                 countOuter={750}
-                radius={95}
+                radius={100}
                 depth={10}
                 size={2}
                 innerHoleRadius={30}
