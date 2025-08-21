@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, OrthographicCamera } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 import { BackgroundStars } from "./components/BackgroundStars/BackgroundStars";
@@ -50,6 +50,7 @@ function App() {
     }, [positions, rng]);
     return (
         <Canvas
+            camera={{ position: [0, 0, 5] }}
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
             <GradientBackground
@@ -60,17 +61,16 @@ function App() {
             <NebulaLayer
                 count={10}
                 radius={45}
-                opacity={0.03}
+                opacity={0.05}
                 scaleRange={[20, 40]}
             />
             <BackgroundStars
                 count={1500}
-                radius={15}
+                radius={100}
                 depth={10}
                 size={2}
                 rotationSpeed={0.005}
             />
-            <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={100} />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
             <GlowSphere
