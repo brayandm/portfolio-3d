@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, OrthographicCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 
@@ -43,15 +43,33 @@ function App() {
     }, [positions]);
     return (
         <Canvas
-            camera={{ position: [0, 0, 3] }}
             style={{ background: "black", width: "100vw", height: "100vh" }}
         >
+            <OrthographicCamera makeDefault position={[0, 0, 100]} zoom={100} />
             <ambientLight intensity={0.5} />
             <pointLight position={[2, 2, 2]} />
             <GlowSphere
                 positions={positions}
                 color={"#66ccff"}
                 position={[0, 0, 0]}
+                dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                rotationSpeed={ROTATION_SPEED}
+                edges={edges}
+            />
+            <GlowSphere
+                positions={positions}
+                color={"red"}
+                position={[2, 0, 0]}
+                dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                rotationSpeed={ROTATION_SPEED}
+                edges={edges}
+            />
+            <GlowSphere
+                positions={positions}
+                color={"yellow"}
+                position={[-2, 0, 0]}
                 dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                 dotsFloatSpeed={DOTS_FLOAT_SPEED}
                 rotationSpeed={ROTATION_SPEED}
