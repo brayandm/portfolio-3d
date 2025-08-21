@@ -1,6 +1,8 @@
-import { useRef, useMemo, useLayoutEffect } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { CurvedEdges } from "../CurvedEdges/CurvedEdges";
+import { InstancedDots } from "../InstancedDots/InstancedDots";
 
 type GlowSphereProps = {
     positions: Float32Array;
@@ -9,15 +11,21 @@ type GlowSphereProps = {
     dotsFloatAmplitude?: number;
     dotsFloatSpeed?: number;
     rotationSpeed?: number;
+    edges?: Array<[number, number]>;
+    edgeWidth?: number;
+    edgeSegments?: number;
 };
 
 export function GlowSphere({
     positions,
     color = "#66ccff",
     position = [0, 0, 0],
-    dotsFloatAmplitude = 0.01,
-    dotsFloatSpeed = 1,
+    dotsFloatAmplitude = 0.05,
+    dotsFloatSpeed = 0.6,
     rotationSpeed = 0.2,
+    edges,
+    edgeWidth = 0.006,
+    edgeSegments = 32,
 }: GlowSphereProps) {
     const rimMatRef = useRef<THREE.ShaderMaterial>(null!);
     const groupRef = useRef<THREE.Group>(null!);
@@ -99,101 +107,15 @@ export function GlowSphere({
                 floatAmplitude={dotsFloatAmplitude}
                 floatSpeed={dotsFloatSpeed}
             />
+            {edges && edges.length > 0 && (
+                <CurvedEdges
+                    positions={positions}
+                    color={baseColor}
+                    edges={edges}
+                    width={edgeWidth}
+                    segments={edgeSegments}
+                />
+            )}
         </group>
-    );
-}
-
-type DotsProps = {
-    positions: Float32Array;
-    color: THREE.Color;
-    floatAmplitude: number;
-    floatSpeed: number;
-};
-
-function InstancedDots({
-    positions,
-    color,
-    floatAmplitude,
-    floatSpeed,
-}: DotsProps) {
-    const ref = useRef<THREE.InstancedMesh>(null!);
-    const matrix = useMemo(() => new THREE.Matrix4(), []);
-    const count = positions.length / 3;
-    const dirs = useMemo(() => {
-        const d = new Float32Array(count * 3);
-        for (let i = 0; i < count; i++) {
-            const x = positions[i * 3 + 0];
-            const y = positions[i * 3 + 1];
-            const z = positions[i * 3 + 2];
-            const v = new THREE.Vector3(x, y, z).normalize();
-            d[i * 3 + 0] = v.x;
-            d[i * 3 + 1] = v.y;
-            d[i * 3 + 2] = v.z;
-        }
-        return d;
-    }, [count, positions]);
-    const radii = useMemo(() => {
-        const r = new Float32Array(count);
-        for (let i = 0; i < count; i++) {
-            const x = positions[i * 3 + 0];
-            const y = positions[i * 3 + 1];
-            const z = positions[i * 3 + 2];
-            r[i] = Math.sqrt(x * x + y * y + z * z);
-        }
-        return r;
-    }, [count, positions]);
-    const phases = useMemo(() => {
-        const a = new Float32Array(count);
-        for (let i = 0; i < count; i++) a[i] = i * 0.61803398875 * Math.PI * 2;
-        return a;
-    }, [count]);
-
-    useLayoutEffect(() => {
-        for (let i = 0; i < count; i++) {
-            matrix.makeTranslation(
-                positions[i * 3 + 0],
-                positions[i * 3 + 1],
-                positions[i * 3 + 2],
-            );
-            ref.current.setMatrixAt(i, matrix);
-        }
-        ref.current.instanceMatrix.needsUpdate = true;
-    }, [count, matrix, positions]);
-
-    useFrame(({ clock }) => {
-        const t = clock.elapsedTime;
-        for (let i = 0; i < count; i++) {
-            const r =
-                radii[i] +
-                Math.sin(t * floatSpeed + phases[i]) * floatAmplitude;
-            const dx = dirs[i * 3 + 0];
-            const dy = dirs[i * 3 + 1];
-            const dz = dirs[i * 3 + 2];
-            matrix.makeTranslation(dx * r, dy * r, dz * r);
-            ref.current.setMatrixAt(i, matrix);
-        }
-        ref.current.instanceMatrix.needsUpdate = true;
-    });
-
-    return (
-        <instancedMesh
-            ref={ref}
-            args={[
-                undefined as unknown as THREE.BufferGeometry,
-                undefined as unknown as THREE.Material,
-                count,
-            ]}
-            renderOrder={11}
-        >
-            <sphereGeometry args={[0.02, 12, 12]} />
-            <meshBasicMaterial
-                color={color}
-                transparent
-                opacity={0.9}
-                depthWrite={false}
-                depthTest={false}
-                blending={THREE.AdditiveBlending}
-            />
-        </instancedMesh>
     );
 }

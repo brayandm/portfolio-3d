@@ -5,11 +5,13 @@ import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
 
 function App() {
+    const DOTS_COUNT = 20;
     const DOTS_FLOAT_AMPLITUDE = 0.01;
     const DOTS_FLOAT_SPEED = 1;
     const ROTATION_SPEED = 0.2;
+    const EDGE_COUNT = 12;
     const positions = useMemo(() => {
-        const count = 20;
+        const count = DOTS_COUNT;
         const arr = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
             const x = Math.random() * 2 - 1;
@@ -24,6 +26,21 @@ function App() {
         }
         return arr;
     }, []);
+    const edges = useMemo(() => {
+        const n = positions.length / 3;
+        const s = new Set<string>();
+        const r: Array<[number, number]> = [];
+        while (r.length < Math.min(EDGE_COUNT, (n * (n - 1)) / 2)) {
+            const a = Math.floor(Math.random() * n);
+            const b = Math.floor(Math.random() * n);
+            if (a === b) continue;
+            const k = a < b ? `${a}-${b}` : `${b}-${a}`;
+            if (s.has(k)) continue;
+            s.add(k);
+            r.push([a, b]);
+        }
+        return r;
+    }, [positions]);
     return (
         <Canvas
             camera={{ position: [0, 0, 3] }}
@@ -38,6 +55,7 @@ function App() {
                 dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                 dotsFloatSpeed={DOTS_FLOAT_SPEED}
                 rotationSpeed={ROTATION_SPEED}
+                edges={edges}
             />
             <OrbitControls />
         </Canvas>
