@@ -35,6 +35,14 @@ type GlowSphereProps = {
     ringSoftness?: number;
     ringRimPower?: number;
     rimIntensity?: number;
+    rimPower?: number;
+    core?: boolean;
+    coreColor?: THREE.ColorRepresentation;
+    coreSize?: number;
+    coreIntensity?: number;
+    corePower?: number;
+    coreOpacity?: number;
+    corePulseSpeed?: number;
 };
 
 export function GlowSphere({
@@ -53,6 +61,14 @@ export function GlowSphere({
     orbitDirection = 1,
     orbitAxis = [0, 0, 1],
     rimIntensity = 1.5,
+    rimPower = 2.0,
+    core = false,
+    coreColor,
+    coreSize = 0.2,
+    coreIntensity = 4,
+    corePower = 2.0,
+    coreOpacity = 1.0,
+    corePulseSpeed = 0,
     atmosphere = false,
     atmosphereColor = "#66ccff",
     atmosphereIntensity = 1,
@@ -150,10 +166,10 @@ export function GlowSphere({
     const uniforms = useMemo(
         () => ({
             uColor: { value: baseColor.clone() },
-            uPower: { value: 2.0 },
+            uPower: { value: rimPower },
             uIntensity: { value: rimIntensity },
         }),
-        [baseColor, rimIntensity],
+        [baseColor, rimPower, rimIntensity],
     );
     const atmosphereColorFinal = useMemo(
         () => new THREE.Color(atmosphereColor || color),
@@ -176,6 +192,54 @@ export function GlowSphere({
     const ringColorFinal = useMemo(
         () => new THREE.Color(ringColor || color),
         [ringColor, color],
+    );
+    const coreEmissive = useMemo(
+        () => new THREE.Color(coreColor || color),
+        [coreColor, color],
+    );
+    const coreMatRef = useRef<THREE.ShaderMaterial>(null!);
+    const coreVertex = useMemo(
+        () => `
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vNormal = normalize(normalMatrix * normal);
+            vViewDir = normalize(-mvPosition.xyz);
+            gl_Position = projectionMatrix * mvPosition;
+        }
+        `,
+        [],
+    );
+    const coreFragment = useMemo(
+        () => `
+        uniform vec3 uColor;
+        uniform float uIntensity;
+        uniform float uPower;
+        uniform float uOpacity;
+        uniform float uTime;
+        uniform float uPulse;
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+            float center = pow(max(dot(normalize(vNormal), normalize(vViewDir)), 0.0), uPower);
+            float pulse = 1.0 + 0.15 * sin(uTime * uPulse);
+            vec3 col = uColor * uIntensity * center * pulse;
+            gl_FragColor = vec4(col, clamp(center * uOpacity, 0.0, 1.0));
+        }
+        `,
+        [],
+    );
+    const coreUniforms = useMemo(
+        () => ({
+            uColor: { value: coreEmissive.clone() },
+            uIntensity: { value: coreIntensity },
+            uPower: { value: corePower },
+            uOpacity: { value: coreOpacity },
+            uTime: { value: 0 },
+            uPulse: { value: corePulseSpeed },
+        }),
+        [coreEmissive, coreIntensity, corePower, coreOpacity, corePulseSpeed],
     );
     const ringEuler = useMemo(
         () =>
@@ -222,7 +286,7 @@ export function GlowSphere({
 
     useFrame((_, delta) => {
         if (groupRef.current)
-            groupRef.current.rotation.y += rotationSpeed * delta;
+            groupRef.current.rotation.z += rotationSpeed * delta;
         if (
             groupRef.current &&
             centerVec &&
@@ -240,6 +304,9 @@ export function GlowSphere({
             const nz = centerVec.z + rotated.z;
             groupRef.current.position.set(nx, ny, nz);
         }
+        if (core && coreMatRef.current) {
+            coreMatRef.current.uniforms.uTime.value += delta;
+        }
     });
 
     return (
@@ -255,6 +322,27 @@ export function GlowSphere({
                     depthWrite={false}
                 />
             </mesh>
+            {core && (
+                <mesh renderOrder={12}>
+                    <sphereGeometry args={[coreSize, 32, 32]} />
+                    <shaderMaterial
+                        ref={coreMatRef}
+                        args={[
+                            {
+                                uniforms: coreUniforms,
+                                vertexShader: coreVertex,
+                                fragmentShader: coreFragment,
+                                transparent: true,
+                                depthWrite: false,
+                                depthTest: false,
+                                blending: THREE.AdditiveBlending,
+                                toneMapped: false,
+                                side: THREE.DoubleSide,
+                            },
+                        ]}
+                    />
+                </mesh>
+            )}
             <mesh>
                 <sphereGeometry args={[0.76, 64, 64]} />
                 <shaderMaterial

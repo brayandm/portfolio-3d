@@ -119,6 +119,12 @@ function App() {
                     rotationSpeed={ROTATION_SPEED * 0.1}
                     edges={edges}
                     size={3}
+                    core
+                    coreColor={"#827123"}
+                    coreSize={0.4}
+                    coreIntensity={10}
+                    corePower={1}
+                    coreOpacity={1.2}
                 />
                 <GlowSphere
                     positions={positions}
@@ -171,13 +177,36 @@ function App() {
                     rotationSpeed={ROTATION_SPEED}
                     edges={edges}
                     orbitCenter={[0, 0, 0]}
-                    orbitSpeed={0.01}
+                    orbitSpeed={0.08}
                     orbitDirection={1}
                     size={2}
                     atmosphere
                     atmosphereColor="#b2f295"
                     atmospherePower={0.3}
                     rimIntensity={5}
+                />
+                <GlowSphere
+                    positions={positions}
+                    color={"purple"}
+                    position={[12, -24, 0]}
+                    dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                    dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                    rotationSpeed={ROTATION_SPEED}
+                    edges={edges}
+                    orbitCenter={[0, 0, 0]}
+                    orbitSpeed={0.1}
+                    orbitDirection={1}
+                    size={2}
+                    atmosphere
+                    atmosphereColor="purple"
+                    atmospherePower={0.3}
+                    rimIntensity={5}
+                    core
+                    coreColor="purple"
+                    coreSize={0.1}
+                    coreIntensity={10}
+                    corePower={1}
+                    coreOpacity={1.2}
                 />
                 <OrbitControls />
             </Canvas>
