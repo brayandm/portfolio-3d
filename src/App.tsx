@@ -97,11 +97,11 @@ function App() {
                 <BackgroundStars
                     countInner={400}
                     countOuter={750}
-                    radius={100}
+                    radius={98}
                     depth={10}
                     size={2}
                     innerHoleRadius={30}
-                    shellThickness={10}
+                    shellThickness={20}
                 />
                 <ambientLight intensity={0.5} />
                 <pointLight position={[2, 2, 2]} />
