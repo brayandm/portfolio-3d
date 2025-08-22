@@ -10,7 +10,7 @@ import { NebulaLayer } from "./components/NebulaLayer/NebulaLayer";
 import { StartOverlay } from "./components/StartOverlay/StartOverlay";
 import { CameraAnimator } from "./components/CameraAnimator/CameraAnimator";
 
-export const DEBUG_MODE = true;
+export const DEBUG_MODE = false;
 
 function App() {
     const [started, setStarted] = useState(false);
@@ -236,7 +236,11 @@ function App() {
                     corePower={1}
                     coreOpacity={1.2}
                 />
-                <OrbitControls />
+                <OrbitControls
+                    enableZoom={DEBUG_MODE}
+                    enablePan={DEBUG_MODE}
+                    enableRotate={started || DEBUG_MODE}
+                />
             </Canvas>
         </>
     );
