@@ -201,7 +201,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"purple"}
-                    position={[-24, 12, 0]}
+                    position={[24, -12, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
