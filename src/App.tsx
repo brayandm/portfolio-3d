@@ -156,7 +156,7 @@ function App() {
                         radius={0}
                         depth={0}
                         size={1.5}
-                        innerHoleRadius={2000}
+                        innerHoleRadius={10000}
                         shellThickness={0}
                         outerRotationSpeed={0}
                         innerRotationSpeed={0}
