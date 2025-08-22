@@ -10,6 +10,8 @@ import { NebulaLayer } from "./components/NebulaLayer/NebulaLayer";
 import { StartOverlay } from "./components/StartOverlay/StartOverlay";
 import { CameraAnimator } from "./components/CameraAnimator/CameraAnimator";
 
+export const DEBUG_MODE = true;
+
 function App() {
     const [started, setStarted] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -67,10 +69,13 @@ function App() {
         <>
             <audio ref={audioRef} src="/audio.mp3" preload="auto" loop />
             <Canvas
-                camera={{ position: [0, -500, 250], far: 100000000 }}
+                camera={{
+                    position: DEBUG_MODE ? [0, -3, 2] : [0, -500, 250],
+                    far: 100000000,
+                }}
                 style={{ background: "black", width: "100vw", height: "100vh" }}
             >
-                {!started && (
+                {!DEBUG_MODE && !started && (
                     <StartOverlay
                         onStart={handleStart}
                         startMusic={startMusic}
@@ -118,7 +123,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"#66ccff"}
-                    position={[0, 5, 0]}
+                    position={[3, 5, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -130,7 +135,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"red"}
-                    position={[0, 8, 0]}
+                    position={[3, -10, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -145,7 +150,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"yellow"}
-                    position={[0, 12, 0]}
+                    position={[-8, 12, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -156,6 +161,23 @@ function App() {
                     size={1.5}
                     atmosphere
                     atmosphereColor="yellow"
+                />
+                <GlowSphere
+                    positions={positions}
+                    color={"green"}
+                    position={[8, 18, 0]}
+                    dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                    dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                    rotationSpeed={ROTATION_SPEED}
+                    edges={edges}
+                    orbitCenter={[0, 0, 0]}
+                    orbitSpeed={0.01}
+                    orbitDirection={1}
+                    size={2}
+                    atmosphere
+                    atmosphereColor="#b2f295"
+                    atmospherePower={0.3}
+                    rimIntensity={5}
                 />
                 <OrbitControls />
             </Canvas>

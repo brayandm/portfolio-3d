@@ -34,6 +34,7 @@ type GlowSphereProps = {
     ringSegments?: number;
     ringSoftness?: number;
     ringRimPower?: number;
+    rimIntensity?: number;
 };
 
 export function GlowSphere({
@@ -50,7 +51,8 @@ export function GlowSphere({
     orbitCenter,
     orbitSpeed = 0,
     orbitDirection = 1,
-    orbitAxis = [0, 1, 0],
+    orbitAxis = [0, 0, 1],
+    rimIntensity = 1.5,
     atmosphere = false,
     atmosphereColor = "#66ccff",
     atmosphereIntensity = 1,
@@ -149,9 +151,9 @@ export function GlowSphere({
         () => ({
             uColor: { value: baseColor.clone() },
             uPower: { value: 2.0 },
-            uIntensity: { value: 1.5 },
+            uIntensity: { value: rimIntensity },
         }),
-        [baseColor],
+        [baseColor, rimIntensity],
     );
     const atmosphereColorFinal = useMemo(
         () => new THREE.Color(atmosphereColor || color),
