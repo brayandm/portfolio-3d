@@ -81,7 +81,7 @@ function App() {
                     duration={3}
                     target={[0, 0, 0]}
                     lookAt={[0, 0, 0]}
-                    stopDistance={1}
+                    stopDistance={3}
                 />
                 <GradientBackground
                     innerRadius={10000}
@@ -107,23 +107,36 @@ function App() {
                 <pointLight position={[2, 2, 2]} />
                 <GlowSphere
                     positions={positions}
-                    color={"#66ccff"}
+                    color={"#ffd200"}
                     position={[0, 0, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
-                    rotationSpeed={ROTATION_SPEED}
+                    rotationSpeed={ROTATION_SPEED * 0.1}
                     edges={edges}
+                    size={3}
                 />
                 <GlowSphere
                     positions={positions}
-                    color={"red"}
-                    position={[2, 0, 0]}
+                    color={"#66ccff"}
+                    position={[5, 0, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
                     edges={edges}
                     orbitCenter={[0, 0, 0]}
-                    orbitSpeed={0.5}
+                    orbitSpeed={0.1}
+                    orbitDirection={1}
+                />
+                <GlowSphere
+                    positions={positions}
+                    color={"red"}
+                    position={[10, 0, 0]}
+                    dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                    dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                    rotationSpeed={ROTATION_SPEED}
+                    edges={edges}
+                    orbitCenter={[0, 0, 0]}
+                    orbitSpeed={0.05}
                     orbitDirection={1}
                     size={1.2}
                     ring={true}
@@ -132,13 +145,13 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"yellow"}
-                    position={[-2, 0, 0]}
+                    position={[-4, 0, 10]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
                     edges={edges}
                     orbitCenter={[0, 0, 0]}
-                    orbitSpeed={0.5}
+                    orbitSpeed={0.07}
                     orbitDirection={1}
                     size={1.5}
                     atmosphere
