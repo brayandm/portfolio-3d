@@ -128,8 +128,21 @@ function App() {
                 />
                 <GlowSphere
                     positions={positions}
+                    color={"white"}
+                    position={[3, -3, 0]}
+                    dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
+                    dotsFloatSpeed={DOTS_FLOAT_SPEED}
+                    rotationSpeed={ROTATION_SPEED * 0.1}
+                    size={0.8}
+                    edges={edges}
+                    orbitCenter={[0, 0, 0]}
+                    orbitSpeed={0.3}
+                    orbitDirection={1}
+                />
+                <GlowSphere
+                    positions={positions}
                     color={"#66ccff"}
-                    position={[3, 5, 0]}
+                    position={[3, 6, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -141,7 +154,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"red"}
-                    position={[3, -10, 0]}
+                    position={[-3, -10, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -188,7 +201,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"purple"}
-                    position={[12, -24, 0]}
+                    position={[-24, 12, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
