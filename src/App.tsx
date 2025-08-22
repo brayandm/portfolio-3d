@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { GlowSphere } from "./components/GlowSphere/GlowSphere";
@@ -14,6 +14,7 @@ export const DEBUG_MODE = false;
 
 function App() {
     const [started, setStarted] = useState(false);
+    const [showIntroStars, setShowIntroStars] = useState(true);
     const audioRef = useRef<HTMLAudioElement>(null);
     const startMusic = () => {
         const el = audioRef.current;
@@ -26,6 +27,25 @@ function App() {
     const handleStart = () => {
         setStarted(true);
     };
+
+    function IntroStarsWatcher({
+        onHide,
+        threshold = 140,
+    }: {
+        onHide: () => void;
+        threshold?: number;
+    }) {
+        const hiddenRef = useRef(false);
+        useFrame(({ camera }) => {
+            if (hiddenRef.current) return;
+            const d = camera.position.length();
+            if (d <= threshold) {
+                hiddenRef.current = true;
+                onHide();
+            }
+        });
+        return null;
+    }
     useEffect(() => {
         const onVisibility = () => {
             const el = audioRef.current;
@@ -123,6 +143,25 @@ function App() {
                     innerHoleRadius={30}
                     shellThickness={20}
                 />
+                {showIntroStars && (
+                    <IntroStarsWatcher
+                        onHide={() => setShowIntroStars(false)}
+                        threshold={140}
+                    />
+                )}
+                {showIntroStars && (
+                    <BackgroundStars
+                        countInner={200}
+                        countOuter={0}
+                        radius={0}
+                        depth={0}
+                        size={1.5}
+                        innerHoleRadius={2000}
+                        shellThickness={0}
+                        outerRotationSpeed={0}
+                        innerRotationSpeed={0}
+                    />
+                )}
                 <ambientLight intensity={0.5} />
                 <pointLight position={[2, 2, 2]} />
                 <GlowSphere
