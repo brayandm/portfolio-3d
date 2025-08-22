@@ -67,7 +67,7 @@ function App() {
         <>
             <audio ref={audioRef} src="/audio.mp3" preload="auto" loop />
             <Canvas
-                camera={{ position: [50, -400, 280], far: 100000000 }}
+                camera={{ position: [0, -500, 250], far: 100000000 }}
                 style={{ background: "black", width: "100vw", height: "100vh" }}
             >
                 {!started && (
@@ -118,7 +118,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"#66ccff"}
-                    position={[5, 0, 0]}
+                    position={[0, 5, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -130,7 +130,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"red"}
-                    position={[10, 0, 0]}
+                    position={[0, 8, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
@@ -145,7 +145,7 @@ function App() {
                 <GlowSphere
                     positions={positions}
                     color={"yellow"}
-                    position={[-4, 0, 10]}
+                    position={[0, 12, 0]}
                     dotsFloatAmplitude={DOTS_FLOAT_AMPLITUDE}
                     dotsFloatSpeed={DOTS_FLOAT_SPEED}
                     rotationSpeed={ROTATION_SPEED}
