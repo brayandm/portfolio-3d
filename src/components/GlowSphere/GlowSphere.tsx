@@ -67,6 +67,11 @@ export function GlowSphere({
     ringSoftness = 0.8,
     ringRimPower = 2.0,
 }: GlowSphereProps) {
+    const SCALE = 0.1;
+
+    size *= SCALE;
+    position = [position[0] * SCALE, position[1] * SCALE, position[2] * SCALE];
+
     const rimMatRef = useRef<THREE.ShaderMaterial>(null!);
     const groupRef = useRef<THREE.Group>(null!);
     const baseColor = useMemo(() => new THREE.Color(color), [color]);
