@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -26,6 +26,21 @@ function App() {
     const handleStart = () => {
         setStarted(true);
     };
+    useEffect(() => {
+        const onVisibility = () => {
+            const el = audioRef.current;
+            if (!el) return;
+            if (document.hidden) {
+                el.pause();
+            } else {
+                if (!started) return;
+                el.play().catch(() => {});
+            }
+        };
+        document.addEventListener("visibilitychange", onVisibility);
+        return () =>
+            document.removeEventListener("visibilitychange", onVisibility);
+    }, [started]);
     const DOTS_COUNT = 20;
     const EDGE_COUNT = 10;
     const DOTS_FLOAT_AMPLITUDE = 0.01;
